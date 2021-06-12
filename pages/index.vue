@@ -1,195 +1,218 @@
 <template>
-  <div class="bg h-screen">
-    <div class="h-full flex justify-center">
-      <div class="w-2/5">
-        <!-- Title -->
-        <div class="text-center">
-          <h1 class="p-20 text-white text-5xl">To Do List</h1>
-        </div>
+  <div class="bg">
+    <!-- Finish Loading -->
+    <div>
+      <div class="h-full flex justify-center pb-20">
+        <div class="w-2/5">
+          <!-- Title -->
+          <div class="text-center">
+            <h1 class="p-20 text-white text-5xl">To Do List</h1>
+          </div>
+          <!-- Input -->
+          <form class="pb-10 flex" action="" @submit.prevent="addTodo">
+            <input
+              class="w-full p-3 shadow rounded-full px-10"
+              type="text"
+              name=""
+              id=""
+              v-model="todo"
+            />
+            <button type="submit" class="ml-2">
+              <i class="icon fas fa-plus"></i>
+            </button>
+          </form>
 
-        <!-- Input -->
-        <form class="pb-10 flex" action="" @submit.prevent="addTodo">
-          <input
-            class="w-full p-3 shadow rounded-full px-10"
-            type="text"
-            name=""
-            id=""
-            v-model="todo"
-          />
-          <button type="submit" class="ml-2">
-            <i class="icon fas fa-plus"></i>
-          </button>
-        </form>
+          <!-- Output List : Task -->
 
-        <!-- Output List : Task -->
-        <div
-          v-for="(todo, index) in todos"
-          :key="index"
-          class="mt-4 text-center"
-        >
-          <div
-            class="flex justify-between items-center bg-white leading-none rounded-full p-3 shadow text-teal text-base"
+          <div class="calc-height overflow-auto">
+            <div
+            v-for="(todo, todo_index) in todos"
+            :key="todo.task_id"
+            class="mt-4 text-center"
           >
-            <div class="w-full flex items-center">
-              <div v-if="!todo.is_edited">
+            <div v-if="todo.is_checked"></div>
+            <div
+              class="flex justify-between items-center bg-white leading-none rounded-full p-3 shadow text-teal text-base"
+            >
+              <div class="w-full flex items-center ">
+                <div v-if="!todo.is_edited">
+                  <div
+                    @click="toggleCheckTask(todo_index)"
+                    class="cursor-pointer bg-green-600 text-white rounded-full h-6 px-2 flex justify-center items-center"
+                  >
+                    <i class="fas fa-check"></i>
+                  </div>
+                </div>
+                <div v-else>
+                  <div
+                    @click="editTask(todo_index)"
+                    class="cursor-pointer bg-green-600 text-white rounded-full h-6 px-2 flex justify-center items-center"
+                  >
+                    <i class="fas fa-check-double"></i>
+                  </div>
+                </div>
+
+                <div>
+                  <div v-if="!todo.is_edited">
+                    <input
+                      type="text"
+                      :class="
+                        `${todo.is_checked ? 'text-completed' : ''} mx-5 task`
+                      "
+                      @click="inputEditTodo(todo_index)"
+                      v-model="todo.content"
+                    />
+                  </div>
+                  <div v-else>
+                    <input
+                      type="text"
+                      name=""
+                      id=""
+                      class="mx-5"
+                      v-bind:placeholder="todo.content"
+                      v-model="edit"
+                      @keypress.enter="editTask(todo_index)"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div v-if="todo.is_edited">
                 <div
-                  @click="toggleCheckTask(index)"
-                  class="cursor-pointer bg-green-600 text-white rounded-full h-6 px-2 flex justify-center items-center"
+                  class="cursor-pointer bg-red-600 text-white rounded-full h-6 px-2 flex justify-center items-center"
+                  @click="closeTodo(todo_index)"
                 >
-                  <i class="fas fa-check"></i>
+                  <i class="fas fa-times"></i>
                 </div>
               </div>
               <div v-else>
-                <div
-                  @click="editTask(index)"
-                  class="cursor-pointer bg-green-600 text-white rounded-full h-6 px-2 flex justify-center items-center"
-                >
-                  <i class="fas fa-check-double"></i>
-                </div>
-              </div>
-
-              <div>
-                <div v-if="!todo.is_edited">
-                  <input
-                    type="text"
-                    :class="
-                      `${todo.is_checked ? 'text-completed' : ''} mx-5 task`
-                    "
-                    @click="inputEditTodo(index)"
-                    v-model="todo.content"
-                    @keypress.enter="editTask(index)"
-                  />
+                <div v-if="!todo.is_checked">
+                  <div
+                    class="cursor-pointer bg-red-600 text-white rounded-full h-6 px-2 flex justify-center items-center"
+                    @click="removeTodo(todo.task_id)"
+                  >
+                    <i class="fas fa-trash-alt"></i>
+                  </div>
                 </div>
                 <div v-else>
-                  <input
-                    type="text"
-                    name=""
-                    id=""
-                    class="mx-5"
-                    v-bind:placeholder="todo.content"
-                    v-model="edit"
-                    @keypress.enter="editTask(index)"
-                  />
+                    <div
+                    class=" bg-red-600 text-white rounded-full h-6 px-2 flex justify-center items-center"
+                  >
+                    <i class="fas fa-trash-alt"></i>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div v-if="todo.is_edited">
-              <div
-                class="cursor-pointer bg-red-600 text-white rounded-full h-6 px-2 flex justify-center items-center"
-                @click="closeTodo(index)"
-              >
-                <i class="fas fa-times"></i>
-              </div>
-            </div>
-            <div v-else>
-              <div
-                class="cursor-pointer bg-red-600 text-white rounded-full h-6 px-2 flex justify-center items-center"
-                @click="removeTodo(index)"
-              >
-                <i class="fas fa-trash-alt"></i>
               </div>
             </div>
           </div>
+
+          </div>
+
+
+          
         </div>
       </div>
     </div>
-    <!-- End of Workspace -->
   </div>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
+  layout: "navLayout",
+  middleware: "isAuth",
   data() {
     return {
-      //
+      // MODEL
       todo: "",
-      edit: "",
-      todos: [
-      { content: "drink coffee", is_checked: true, is_edited: false },
-      { content: "eat breakkie", is_checked: false, is_edited: false },
-      { content: "check e-mail", is_checked: false, is_edited: false },
-      { content: "eat", is_checked: false, is_edited: false },
-      { content: "do some work", is_checked: false, is_edited: false }
-    ]
-
+      edit: ""
     };
   },
 
-  // computed: {
-  //   todos(){
-  //       return this.$store.state.todos
-  //     } 
-  // },
-  watch: {
-    todos(value) {
-      console.log(value);
+  computed: {
+    todos() {
+      return this.$store.getters["getterToDoList"];
     }
   },
-  mounted() {
-    this.$nextTick(() => {
-      this.$refs.inputEdit;
-    });
+  async created() {
+    this.isPageLoading = true;
+    await this.getUserID();
+    await this.getToDoList();
   },
   methods: {
+    async getUserID() {
+      await this.$store.dispatch("auth/getUsernameFromApi");
+    },
     // State Management
-    inputEditTodo(task_index) {
-      return this.todos.map((thing, index) => {
-        if (task_index === index) {
-          thing.is_edited = true;
-        } else {
-          thing.is_edited = false;
-        }
+    async getToDoList() {
+      await this.$store.dispatch("getToDoListFromAPI", {
+        user_id: this.$store.getters["auth/gettersUsername"].user_id
       });
     },
-    addTodo() {
-      this.$store.dispatch('ADD_TODO');
+    async inputEditTodo(task_index) {
+      let status_check = this.todos.is_checked;
+      return await this.$store.commit("INPUT_EDIT_TASK", {
+        task_index: task_index,
+        status_check: status_check
+      });
+    },
+    async addTodo(mode) {
       let newtodo = {
         content: this.todo,
         is_checked: false,
         is_edited: false
       };
+      let newtodos = [...this.todos, newtodo];
       if (this.todo) {
-        this.todos.push(newtodo);
-        console.log(this.newtodo);
-        this.todo = "";
+        await this.$store.dispatch("addTodoToApi", { newtodos: newtodos,user_id: this.$store.getters["auth/gettersUsername"].user_id });
+        await this.getToDoList();
       }
+      this.todo = "";
     },
     // Controller
-    closeTodo(index){
-      this.todos[index].is_edited =false;
+    async closeTodo(index) {
+      await this.$store.commit("CLOSE_TASK", index);
+    },
+    async removeTodo(task_id) {
+      await this.$store.dispatch("deleteTodoToApi", task_id);
+      await this.getToDoList();
+    },
 
+    async toggleCheckTask(task_index) {
+      let newToDoList = this.todos.map((thing, index) => {
+        if (index == task_index) {
+          return (thing = {
+            content: thing.content,
+            is_checked: !thing.is_checked
+          });
+        } else {
+          return thing;
+        }
+      });
+
+      await this.$store.dispatch("addTodoToApi", { newtodos: newToDoList ,user_id: this.$store.getters["auth/gettersUsername"].user_id});
+      await this.getToDoList();
     },
-    removeTodo(index) {
-      this.todos.splice(index, 1);
+    async toggleEdit(index) {
+      await this.$store.commit("TOGGLE_EDIT_TASK", index);
     },
-    toggleCheckTask(index) {
-      console.log("check : " + this.todos[index].is_checked);
-      let status = this.todos[index].is_checked;
-      if (status) {
-        this.todos[index].is_checked = false;
-      } else {
-        this.todos[index].is_checked = true;
+    async editTask(task_index) {
+      let editToDoList = this.todos.map((thing, index) => {
+        if (index == task_index) {
+          return (thing = {
+            content: this.edit,
+            is_checked: thing.is_checked
+          });
+        } else {
+          return thing;
+        }
+      });
+
+      if (this.edit) {
+        await this.$store.dispatch("addTodoToApi", { newtodos: editToDoList,user_id: this.$store.getters["auth/gettersUsername"].user_id });
+        await this.getToDoList();
       }
-    },
-    toggleEdit(index) {
-      console.log("edit : " + this.todos[index].is_edited);
-      let status = this.todos[index].is_edited;
-      if (status) {
-        this.todos[index].is_edited = false;
-      } else {
-        this.todos[index].is_edited = true;
-      }
-    },
-    editTask(task_index) {
-      let newEdit = {
-        content: this.edit,
-        is_checked: false,
-        is_edited: false
-      };
-      if (this.edit !== '') {
-        this.todos.splice(task_index, 1, newEdit)
-        this.edit = "";
-      }
+
+      this.edit = "";
     }
   }
 };
@@ -202,6 +225,7 @@ export default {
     rgba(82, 86, 188, 1),
     rgba(74, 177, 216, 1)
   );
+  height: 100vh;
 }
 
 input {
@@ -225,5 +249,12 @@ button {
 
 input:focus {
   outline: none;
+}
+.last-item:last-child {
+  margin-bottom: 10rem;
+}
+
+.calc-height {
+  height: 500px;
 }
 </style>

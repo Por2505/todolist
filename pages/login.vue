@@ -5,44 +5,103 @@
         <div class="flex justify-center py-8">
           <h1 class="heading-primary">login</h1>
         </div>
-        <form action="">
-          <div class="flex justify-center">
-            <input
-              type="text"
-              name=""
-              id=""
-              placeholder="Username"
-              class="w-10/12 mb-8 shadow px-5 p-2"
-            />
-          </div>
-          <div class="flex justify-center">
-            <input
-              type="password"
-              name=""
-              id=""
-              placeholder="Password"
-              class="w-10/12 px-5 mb-8 shadow p-2"
-            />
-          </div>
-          <div class="flex justify-center mb-4">
-            <button type="submit">
-              <p>Login</p>
-            </button>
-          </div>
-          <div class="flex justify-center mb-8 text-sm">
-            <p>
-              <span class="text-gray-500">Not registed? </span
-              ><span><a href="#" class="text-regis">Create an account</a></span>
-            </p>
-          </div>
-        </form>
+        <ValidationObserver v-slot="{ handleSubmit }">
+          <form @submit.prevent="handleSubmit(login)">
+            <ValidationProvider
+              name="username"
+              rules="required"
+              v-slot="{ errors }"
+            >
+              <div class="flex justify-center">
+                <input
+                  type="text"
+                  placeholder="Username"
+                  v-model="user.username"
+                  class="w-10/12 mb-4 shadow px-5 p-2"
+                />
+              </div>
+              <div
+                v-if="errors.length > 0"
+                class="flex justify-center text-red-500 mb-4 font-normal text-xs"
+              >
+                <p>{{ errors[0] }}</p>
+              </div>
+            </ValidationProvider>
+            <ValidationProvider
+              name="username"
+              rules="required"
+              v-slot="{ errors }"
+            >
+              <div class="flex justify-center">
+                <input
+                  type="password"
+                  placeholder="Password"
+                  v-model="user.password"
+                  class="w-10/12 px-5 mb-4 shadow p-2"
+                />
+              </div>
+              <div
+                v-if="errors.length > 0"
+                class="flex justify-center text-red-500 mb-4 font-normal text-xs"
+              >
+                <p>{{ errors[0] }}</p>
+              </div>
+            </ValidationProvider>
+            <div class="flex justify-center mb-4">
+              <button type="submit">
+                <p>Login</p>
+              </button>
+            </div>
+            <div class="flex justify-center mb-8 text-sm">
+              <p>
+                <span class="text-gray-500">Not registed? </span
+                ><span class="text-regis"
+                  ><NuxtLink to="/register">Create an account</NuxtLink></span
+                >
+              </p>
+            </div>
+          </form>
+        </ValidationObserver>
       </div>
     </div>
   </div>
 </template>
 <script>
-export default {};
+export default {
+  middleware: "unAuth",
+  data() {
+    return {
+      user: {
+        username: "",
+        password: ""
+      }
+    };
+  },
+  computed: {
+    isAccess() {
+      return this.$store.getters["auth/getterIsAccess"];
+    }
+  },
+  watch: {
+    isAccess(value) {
+      if (value) {
+        this.$router.go("/");
+      }
+    }
+  },
+  methods: {
+    async login() {
+      await this.$store.dispatch("auth/loginApi", this.user);
+
+      // this.$store.commit("LOGIN", {
+      //   username: this.user.username,
+      //   password: this.user.password
+      // });
+    }
+  }
+};
 </script>
+
 <style scoped>
 .bg {
   background-image: linear-gradient(

@@ -1,45 +1,118 @@
 <template>
   <div class="bg h-screen">
     <div class="h-full flex justify-center items-center">
-      <div class="w-3/5 bg-white shadow rounded-sm">
+      <div class="w-2/5 bg-white shadow rounded-sm">
         <div class="flex justify-center py-8">
           <h1 class="heading-primary">sign up</h1>
         </div>
-        <form action="">
-          <div class="flex justify-center">
-            <input
-              type="text"
-              name=""
-              id=""
-              placeholder="Fullname"
-              class="w-2/5 mb-8 shadow px-5 p-2 mr-5"
-            />
-            <input
-              type="text"
-              name=""
-              id=""
-              placeholder="Lastname"
-              class="w-2/5 mb-8 shadow px-5 p-2"
-            />
-          </div>
-          <div class="flex justify-center">
-            <input
-              type="email"
-              name=""
-              id=""
-              placeholder="Email Address"
-              class="w-10/12 px-5 mb-8 shadow p-2"
-            />
-          </div>
+        <ValidationObserver v-slot="{ handleSubmit }">
+        <form @submit.prevent="handleSubmit(onSubmit())">
+          <ValidationProvider
+            name="firstname"
+            rules="required"
+            v-slot="{ errors }"
+          >
+            <div class="flex justify-center text-sm">
+              <input
+                type="text"
+                name=""
+                id="firstname"
+                placeholder="Firstname"
+                v-model="user.firstname"
+                class="w-10/12 px-5  mb-6 shadow p-2"
+              />
+            </div>
+            <div
+              v-if="errors.length > 0"
+              class="flex justify-center text-red-500 mb-4 font-normal text-xs"
+            >
+              <p>{{ errors[0] }}</p>
+            </div>
+          </ValidationProvider>
+          <ValidationProvider
+            name="lastname"
+            rules="required"
+            v-slot="{ errors }"
+          >
+            <div class="flex justify-center text-sm">
+              <input
+                type="text"
+                name=""
+                id="lastname"
+                placeholder="Lastname"
+                v-model="user.lastname"
+                class="w-10/12 px-5  mb-6 shadow p-2"
+              />
+            </div>
+            <div
+              v-if="errors.length > 0"
+              class="flex justify-center text-red-500 mb-4 font-normal text-xs"
+            >
+              <p>{{ errors[0] }}</p>
+            </div>
+          </ValidationProvider>
+          <ValidationProvider
+            name="username"
+            rules="required"
+            v-slot="{ errors }"
+          >
+            <div class="flex justify-center text-sm">
+              <input
+                type="text"
+                name=""
+                id="username"
+                placeholder="Username"
+                v-model="user.username"
+                class="w-10/12 px-5  mb-6 shadow p-2"
+              />
+            </div>
+            <div
+              v-if="errors.length > 0"
+              class="flex justify-center text-red-500 mb-4 font-normal text-xs"
+            >
+              <p>{{ errors[0] }}</p>
+            </div>
+          </ValidationProvider>
+
+          <ValidationProvider
+            rules="confirmed:confirmation"
+            v-slot="{ errors }"
+          >
+            <div class="flex justify-center">
+              <input
+                type="password"
+                name=""
+                id=""
+                placeholder="Set your password"
+                v-model="user.setPassword"
+                class="w-10/12 px-5 mb-6 shadow p-2"
+              />
+            </div>
+            <div
+              v-if="errors.length > 0"
+              class="flex justify-center text-red-500 mb-4 font-normal text-xs"
+            >
+              <p>{{ errors[0] }}</p>
+            </div>
+          </ValidationProvider>
+          <ValidationProvider v-slot="{ errors }" vid="confirmation">
           <div class="flex justify-center">
             <input
               type="password"
               name=""
-              id=""
-              placeholder="Set you password"
-              class="w-10/12 px-5 mb-8 shadow p-2"
+              id="password"
+              v-model="user.confrimPassword"
+              placeholder="Confirm your password"
+              class="w-10/12 px-5 mb-6 shadow p-2"
             />
           </div>
+          <div
+              v-if="errors.length > 0"
+              class="flex justify-center text-red-500 mb-4 font-normal text-xs"
+            >
+              <p>{{ errors[0] }}</p>
+            </div>
+          </ValidationProvider>
           <div class="flex justify-center mb-4">
             <button type="submit">
               <p>Sign Up</p>
@@ -48,17 +121,43 @@
           <div class="flex justify-center text-sm mb-8">
             <p>
               <span class="text-gray-500">If you have an account click </span
-              ><span><a href="#" class="text-regis">Here</a></span>
+              ><span class="text-regis"
+                ><NuxtLink to="/login">Here</NuxtLink></span
+              >
               <span class="text-gray-500">to login. </span>
             </p>
           </div>
         </form>
+        </ValidationObserver>
       </div>
     </div>
   </div>
 </template>
 <script>
-export default {};
+import { ValidationProvider } from "vee-validate";
+export default {
+  components: {
+    ValidationProvider
+  },
+  middleware: 'unAuth',
+  data() {
+    return {
+      user: {
+        firstname: "",
+        lastname: "",
+        username:"",
+        setPassword: "",
+        confrimPassword: ""
+      },
+      submitted: false
+    };
+  },
+  methods: {
+    onSubmit() {
+      this.$store.dispatch("register/registerApi", this.user);
+    }
+  }
+};
 </script>
 <style scoped>
 .bg {
